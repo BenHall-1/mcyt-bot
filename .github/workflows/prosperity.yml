@@ -4,9 +4,9 @@ name: Deploy Github Package
 on:
   workflow_dispatch:
   push:
-    branches: [ main ]
+    branches: [ master ]
   pull_request:
-    branches: [ main ]
+    branches: [ master ]
 
 env:
   REGISTRY: ghcr.io
@@ -79,31 +79,3 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          
-      - name: Create Sentry release
-        uses: getsentry/action-release@v1
-        env:
-          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
-          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
-          SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
-        with:
-          environment: production
-
-      - uses: sarisia/actions-status-discord@v1
-        if: always()
-        with:
-          webhook: ${{ secrets.DISCORD_WEBHOOK }}
-
-  Restart:
-    needs: [Linter, CodeQL, Docker]
-    if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Restarts Docker Stack
-        uses: garygrossgarten/github-action-ssh@release
-        with:
-          command: docker-compose pull && docker-compose up -d
-          host: ${{ secrets.DEPLOYMENT_SSH_IP }}
-          port: ${{ secrets.DEPLOYMENT_SSH_PORT }}
-          username: ${{ secrets.DEPLOYMENT_SSH_USERNAME }}
-          privateKey: ${{ secrets.DEPLOYMENT_SSH_KEY }}
