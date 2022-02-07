@@ -11,7 +11,7 @@ module.exports = {
       .setDescription('The Id(s) that you want to check (Separated by commas)')
       .setRequired(true)),
   async execute(interaction) {
-    if (!has(interaction.member, 'ADMINISTRATOR')) return;
+    if (!has(interaction.member, 'MANAGE_MESSAGES') || interaction.guild.id === '767619946292838439') return;
     const userIdString = interaction.options.getString('user_ids');
     const userIds = userIdString.split(',');
     await reply(interaction, `Checking mutual servers for ${userIds.map((id) => `**${id}**`).join(',')}`);
